@@ -55,10 +55,12 @@ def create():
         error = None
 
         # TODO: достать title и body из формы
-        title = None
-        body = None
+        title = request.form['title']
+        body = request.form['body']
 
         # TODO: title обязательное поле. Если его нет записать ошибку
+        if not title:
+            error = 'Title is not defined'
 
         if error is not None:
             flash(error)
@@ -80,10 +82,12 @@ def update(id):
         error = None
 
         # TODO: достать title и body из формы
-        title = None
-        body = None
+        title = request.form['title']
+        body = request.form['body']
 
         # TODO: title обязательное поле. Если его нет записать ошибку
+        if not title:
+            error = 'Title is not defined'
 
         if error is not None:
             flash(error)

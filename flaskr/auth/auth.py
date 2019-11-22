@@ -56,8 +56,8 @@ def register():
         error = None
 
         # TODO: взять из формы username, password
-        username = None
-        password = None
+        username = request.form['username']
+        password = request.form['password']
 
         if not username:
             error = "Username is required."
@@ -85,8 +85,8 @@ def login():
         error = None
 
         # TODO: взять из формы username, password
-        username = None
-        password = None
+        username = request.form['username']
+        password = request.form['password']
 
         user = get_user_by_username(db, username)
 
