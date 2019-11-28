@@ -1,13 +1,8 @@
 import functools
 
 from flask import Blueprint
-from flask import flash
 from flask import g
-from flask import redirect
-from flask import render_template
 from flask import request
-from flask import session
-from flask import url_for
 from flask import jsonify
 from flask import make_response
 from werkzeug.security import check_password_hash
@@ -16,7 +11,7 @@ from werkzeug.exceptions import abort
 from flaskr.db import get_db
 from flask_httpauth import HTTPBasicAuth
 from flaskr.auth.queries import (
-    create_user, get_user_by_id, get_user_by_username
+    create_user, get_user_by_username
 )
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
