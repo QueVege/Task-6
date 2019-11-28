@@ -15,7 +15,6 @@ def get_user_by_username(db, username):
 
 def create_user(db, username, password):
     db.execute(
-        # TODO: sql - cохранить логин и пароль
         "INSERT INTO user (username, password) VALUES (?, ?)",
         (username, generate_password_hash(password)),
     )

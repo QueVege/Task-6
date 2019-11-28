@@ -8,106 +8,51 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
+from flask import jsonify
+from flask import make_response
 from werkzeug.security import check_password_hash
-
+from werkzeug.exceptions import abort
 
 from flaskr.db import get_db
+from flask_httpauth import HTTPBasicAuth
 from flaskr.auth.queries import (
     create_user, get_user_by_id, get_user_by_username
 )
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+auth = HTTPBasicAuth()
 
-def login_required(view):
-    """View decorator that redirects anonymous users to the login page."""
+@bp.errorhandler(400)
+def bad_request(error):
+    return make_response(jsonify({'error':'Bad request'}), 400)
 
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for("auth.login"))
+@auth.verify_password
+def verify_password(username, password):
 
-        return view(**kwargs)
+    db = get_db()
 
-    return wrapped_view
+    user = get_user_by_username(db, username)
 
+    if user and check_password_hash(user['password'], password):
+        g.user = user
+        return True
 
-@bp.before_app_request
-def load_logged_in_user():
-    """If a user id is stored in the session, load the user object from
-    the database into ``g.user``."""
-    user_id = session.get("user_id")
+@bp.route('/api/users', methods = ['POST'])
+def new_user():
 
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = get_user_by_id(get_db(), user_id)
+    db = get_db()
 
+    username = request.json.get('username')
+    password = request.json.get('password')
 
-@bp.route("/register", methods=("GET", "POST"))
-def register():
-    """Register a new user.
+    if username is None or password is None:
+        abort(400)
 
-    Validates that the username is not already taken. Hashes the
-    password for security.
-    """
-    if request.method == "POST":
-        db = get_db()
-        error = None
+    if get_user_by_username(db, username) is not None:
+        abort(400, 'User with the same username already exists')
+  
+    create_user(db, username, password)
+    user = get_user_by_username(db, username)
 
-        # TODO: взять из формы username, password
-        username = request.form['username']
-        password = request.form['password']
-
-        if not username:
-            error = "Username is required."
-        elif not password:
-            error = "Password is required."
-        elif get_user_by_username(db, username) is not None:
-            error = "User {0} is already registered.".format(username)
-
-        if error is None:
-            # the name is available, store it in the database and go to
-            # the login page
-            create_user(db, username, password)
-            return redirect(url_for("auth.login"))
-
-        flash(error)
-
-    return render_template("auth/register.html")
-
-
-@bp.route("/login", methods=("GET", "POST"))
-def login():
-    """Log in a registered user by adding the user id to the session."""
-    if request.method == "POST":
-        db = get_db()
-        error = None
-
-        # TODO: взять из формы username, password
-        username = request.form['username']
-        password = request.form['password']
-
-        user = get_user_by_username(db, username)
-
-        if user is None:
-            error = "Incorrect username."
-        elif not check_password_hash(user["password"], password):
-            error = "Incorrect password."
-
-        if error is None:
-            # store the user id in a new session and return to the index
-            session.clear()
-            session["user_id"] = user["id"]
-            return redirect(url_for("index"))
-
-        flash(error)
-
-    return render_template("auth/login.html")
-
-
-@bp.route("/logout")
-def logout():
-    """Clear the current session, including the stored user id."""
-    session.clear()
-    return redirect(url_for("index"))
+    return jsonify({'username': user['username'] }), 201

@@ -2,10 +2,6 @@
 
 def post_list(db):
     return db.execute(
-        # TODO: sql - выбрать поля:
-        # id, title, body, created, author_id, username
-        # из таблицы post и таблицы user (они связаны)
-        # и отсортировать по дате создания по убыванию
         "SELECT p.id, title, body, created, author_id, username"
         " FROM post p JOIN user u ON p.author_id = u.id"
         " ORDER BY created DESC",
@@ -14,11 +10,17 @@ def post_list(db):
 
 def get_post(db, id):
     return db.execute(
-            "SELECT p.id, title, body, created, author_id, username"
-            " FROM post p JOIN user u ON p.author_id = u.id"
-            " WHERE p.id = ?",
-            (id,),
-        ).fetchone()
+        "SELECT p.id, title, body, created, author_id, username"
+        " FROM post p JOIN user u ON p.author_id = u.id"
+        " WHERE p.id = ?",
+        (id,),
+    ).fetchone()
+
+
+def get_last_id(db):
+    return db.execute(
+        "SELECT last_insert_rowid() FROM post",
+    ).fetchone()
 
 
 def create_post(db, title, body, author_id):
@@ -31,7 +33,6 @@ def create_post(db, title, body, author_id):
 
 def update_post(db, title, body, id):
     db.execute(
-        # TODO: sql - обновить поля title, body у post с переданным ид
         "UPDATE post"
         " SET title = ?, body = ?"
         " WHERE id = ?",
