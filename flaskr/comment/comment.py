@@ -13,14 +13,14 @@ from flaskr.comment.queries import (
 bp = Blueprint("comment", __name__,  url_prefix="/blog")
 
 
-def check_comment(post_id, comment_id, check_author=True):
+def check_comment(post_id, comment_id):
 
     comment = get_comment(get_db(), post_id, comment_id)
 
     if comment is None:
         abort(404)
 
-    if check_author and comment["author_id"] != g.user["id"]:
+    if comment["author_id"] != g.user["id"]:
         abort(403)
 
     return comment

@@ -13,14 +13,14 @@ from flaskr.blog.queries import (
 bp = Blueprint("blog", __name__,  url_prefix="/blog")
 
 
-def check_post(id, check_author=True):
+def check_post(id):
  
     post = get_post(get_db(), id)
 
     if post is None:
         abort(404)
 
-    if check_author and post["author_id"] != g.user["id"]:
+    if post["author_id"] != g.user["id"]:
         abort(403)
 
     return post
