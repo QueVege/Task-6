@@ -33,6 +33,8 @@ def verify_password(username, password):
         g.user = user
         return True
 
+#curl -i -X POST -H "Content-Type: application/json"
+# -d '{"username":"admin","password":"123"}' http://127.0.0.1:5000/auth/api/users
 @bp.route('/api/users', methods = ['POST'])
 def new_user():
 

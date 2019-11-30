@@ -34,18 +34,7 @@ def bad_request(error):
 
 
 def check_post(id, check_author=True):
-    """Get a post and its author by id.
-
-    Checks that the id exists and optionally that the current user is
-    the author.
-
-    :param id: id of post to get
-    :param check_author: require the current user to be the author
-    :return: the post with author information
-    :raise 404: if a post with the given id doesn't exist
-    :raise 403: if the current user isn't the author
-    """
-
+ 
     post = get_post(get_db(), id)
     if post is None:
         abort(404)
@@ -55,7 +44,7 @@ def check_post(id, check_author=True):
 
     return post
 
-
+#curl -i http://localhost:5000/blog/api/posts
 @bp.route('/api/posts', methods=['GET'])
 def get_all_posts():
 
@@ -79,7 +68,8 @@ def get_post_by_id(id):
 
     return jsonify({'post': post})
 
-
+#curl -u admin:123 -i -H "Content-Type: application/json" -X POST
+# -d '{"title":"MyFirstPost","body":"Post body"}' http://localhost:5000/blog/api/posts
 @bp.route('/api/posts', methods=['POST'])
 @auth.login_required
 def new_post():

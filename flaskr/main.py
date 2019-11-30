@@ -29,9 +29,11 @@ def create_app():
     # apply the blueprints to the app
     from flaskr.blog import blog
     from flaskr.auth import auth
+    from flaskr.comment import comment
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
+    app.register_blueprint(comment.bp)
 
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with
