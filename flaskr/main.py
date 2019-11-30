@@ -1,6 +1,11 @@
 import os
 
 from flask import Flask
+from flask import jsonify
+from flask import request
+
+from werkzeug.exceptions import default_exceptions
+from werkzeug.exceptions import HTTPException
 
 
 def create_app():
@@ -34,6 +39,18 @@ def create_app():
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(comment.bp)
+
+
+    @app.errorhandler(Exception)
+    def handle_error(e):
+        code = 500
+        if isinstance(e, HTTPException):
+            code = e.code
+        return jsonify(error=str(e)), code
+
+    for ex in default_exceptions:
+        app.register_error_handler(ex, handle_error)
+
 
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with

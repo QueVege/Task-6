@@ -18,9 +18,9 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 auth = HTTPBasicAuth()
 
-@bp.errorhandler(400)
-def bad_request(error):
-    return make_response(jsonify({'error':'Bad request'}), 400)
+@auth.error_handler
+def unauthorized():
+    return make_response(jsonify({'error': 'Unauthorized access'}), 401)
 
 @auth.verify_password
 def verify_password(username, password):
@@ -33,8 +33,6 @@ def verify_password(username, password):
         g.user = user
         return True
 
-#curl -i -X POST -H "Content-Type: application/json"
-# -d '{"username":"admin","password":"123"}' http://127.0.0.1:5000/auth/api/users
 @bp.route('/api/users', methods = ['POST'])
 def new_user():
 
